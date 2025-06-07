@@ -59,7 +59,7 @@ android {
 }
 
 dependencies {
-    compile 'com.htc.vr:wvr_client:+'
+    implementation 'com.htc.vr:wvr_client:+'
 }
 
 // unzip aar
