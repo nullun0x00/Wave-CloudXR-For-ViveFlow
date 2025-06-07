@@ -1,5 +1,3 @@
-//========= Copyright 2016-2021, HTC Corporation. All rights reserved. ===========
-
 #include <jni.h>
 #include <log.h>
 #include <WaveCloudXRApp.h>
@@ -32,7 +30,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    app->beginPoseStream();
     while (1) {
         if (!app->HandleCloudXRLifecycle(gPaused))
             break;
@@ -43,9 +40,8 @@ int main(int argc, char *argv[]) {
         if (!app->renderFrame())
             break;
 
-        // app->updatePose();
+        app->updatePose();
     }
-    app->stopPoseStream();
 
     LOGE("Stop streaming.");
     LOGE("Shutting down components.");
@@ -80,4 +76,3 @@ jint JNI_OnUnLoad(JavaVM* vm, void* reserved) {
 
     return 0;
 }
-
