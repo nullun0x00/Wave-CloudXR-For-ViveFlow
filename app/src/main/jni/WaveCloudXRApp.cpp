@@ -109,8 +109,8 @@ WaveCloudXRApp::WaveCloudXRApp()
         , mPlaybackStream(nullptr)
         , mRecordStream(nullptr)
         , mClientState(cxrClientState_ReadyToConnect)
-        , mRenderWidth(1720)
-        , mRenderHeight(1720)
+        , mRenderWidth(2240)
+        , mRenderHeight(2240)
         , mConnected(false)
         , mInited(false)
         , mPaused(true)
@@ -193,8 +193,8 @@ bool WaveCloudXRApp::initGL() {
     // WVR_GetRenderTargetSize(&mRenderWidth, &mRenderHeight);
 
     // Focus 3 panel resolution
-    mRenderWidth = 2448;
-    mRenderHeight = 2448;
+    mRenderWidth = 2240;
+    mRenderHeight = 2240;
     LOGD("Recommended size is %ux%u", mRenderWidth, mRenderHeight);
     if (mRenderWidth == 0 || mRenderHeight == 0) {
         LOGE("Please check server configure");
@@ -505,34 +505,10 @@ void WaveCloudXRApp::updateTime() {
     }
 }
 
-void  WaveCloudXRApp::beginPoseStream() {
-    if (mPoseStream == nullptr) {
-        mPoseStream = new std::thread(&WaveCloudXRApp::updatePose, this);
-    }
-}
 
-void  WaveCloudXRApp::stopPoseStream() {
-    if(mPoseStream!=nullptr) {
-        mExitPoseStream = true;
-        if(mPoseStream->joinable()) {
-           mPoseStream->join();
-           delete mPoseStream;
-            mPoseStream = nullptr;
-        }
-    }
-}
-// 1 sec = 1,000ms = 1,000,000,000ns
 void WaveCloudXRApp::updatePose() {
-    // Update pose 250 per second by default
-    int deno = (mDeviceDesc.posePollFreq == 0) ? 250 : mDeviceDesc.posePollFreq;
-    long long int sleepNs = 1000000000 / deno;
-    LOGI("PoseStream Update per %lldns", sleepNs);
 
-    while (!mExitPoseStream) {
 
-        while (mInited && mConnected)
-        {
-            std::lock_guard<std::mutex> lock(mPoseMutex);
             {
                 WVR_PoseOriginModel pom = WVR_PoseOriginModel_OriginOnGround;
                 // Returns immediately with latest pose
@@ -549,11 +525,7 @@ void WaveCloudXRApp::updatePose() {
                 UpdateDevicePose(WVR_DeviceType_Controller_Right, mCtrlPoses[1]);
                 updatePoseCount++;
             }
-            std::this_thread::sleep_for(std::chrono::nanoseconds(sleepNs));
-        }
-    }
 
-    LOGI("PoseStream end");
 }
 
 /* CloudXR */
@@ -845,7 +817,7 @@ bool WaveCloudXRApp::InitReceiver() {
     desc.deviceDesc = mDeviceDesc;
     desc.clientCallbacks = mClientCallbacks;
     desc.shareContext = &mContext;
-    desc.debugFlags = mOptions.mDebugFlags | cxrDebugFlags_OutputLinearRGBColor | cxrDebugFlags_EnableAImageReaderDecoder;
+    desc.debugFlags = mOptions.mDebugFlags | cxrDebugFlags_OutputLinearRGBColor;
     desc.logMaxSizeKB = CLOUDXR_LOG_MAX_DEFAULT;
     desc.logMaxAgeDays = CLOUDXR_LOG_MAX_DEFAULT;
     strncpy(desc.appOutputPath, "sdcard/CloudXR/logs/", CXR_MAX_PATH - 1); // log file path
@@ -1159,7 +1131,7 @@ bool WaveCloudXRApp::UpdateInput(const WVR_Event_t& event)
         desc.id = ctl;
         desc.role = (hand == HAND_LEFT) ?
                     "cxr://input/hand/left" : "cxr://input/hand/right";
-        desc.controllerName = "Oculus Touch";
+        desc.controllerName = "VIVE FOCUS 3 Controller";
         //desc.controllerName = "vive_focus3_controller"; // CXR server does not recognize this name
         // desc.controllerName = "VIVE FOCUS 3 Controller";
         desc.inputCount = inputTouchLegacyCount;
